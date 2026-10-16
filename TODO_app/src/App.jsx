@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TodoProvider } from "./context";
 
 function App() {
@@ -24,9 +24,19 @@ function App() {
     setTodos((prev) => prev.map((prevTodo) => prevTodo.id === id ? {...prevTodo, isCompleted: !prevTodo.isCompleted} : prevTodo));
   }
 
+  // these function calls all the todos when the application loads first time 
+  useEffect(() => {
 
+    const todos = JSON.parse(localStorage.getItem("todos"));
 
+    if(todos && todos.length > 0){
+      setTodos(todos);
+    }
+  }, []);
 
+  useEffect(() => {
+    localStorage.setItem("todos", JSON.stringify(todos))
+  }, [todos])
 
   return (
     <>
