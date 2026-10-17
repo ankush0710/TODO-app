@@ -14,6 +14,7 @@ function TodoForm() {
     if(!todo) return 
 
     addTodo({todo, isCompleted: false});
+    console.log(todo);
     setTodo("");      //for cleanup after add one task
 
   }

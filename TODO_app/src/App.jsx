@@ -1,12 +1,32 @@
 import { useState, useEffect } from "react";
 import { TodoProvider } from "./context";
+import {TodoForm, TodoItems} from "./components/index";
 
 function App() {
-  const [todos, setTodos] = useState([]);
+  const [todos, setTodos] = useState(() => {
+    const storedTodos = localStorage.getItem("todos");
+
+    if (!storedTodos || storedTodos === "undefined") {
+      return [];
+    }
+
+    try {
+      const parsedTodos = JSON.parse(storedTodos);
+      if (Array.isArray(parsedTodos)) {
+        return parsedTodos.flat(Infinity);
+      }
+
+      console.error("Saved todos in localStorage must be an array.");
+    } catch (error) {
+      console.error("Failed to parse saved todos from localStorage.", error);
+    }
+
+    return [];
+  });
 
   //function defination of the addTodo method declare in context to add todo list, where value "todo" came from the input field.
   const addTodo = (todo) => {
-    setTodos((prev) => [{id: new Date.now(), ...todo}, ...[prev]])
+    setTodos((prev) => [{id: Date.now(), ...todo}, ...prev])
   }
 
   //function defination of the editTodo method declare in context to edit todo list, where value "todo" and id came from the input field and button respectively.
@@ -24,16 +44,6 @@ function App() {
     setTodos((prev) => prev.map((prevTodo) => prevTodo.id === id ? {...prevTodo, isCompleted: !prevTodo.isCompleted} : prevTodo));
   }
 
-  // these function calls all the todos when the application loads first time 
-  useEffect(() => {
-
-    const todos = JSON.parse(localStorage.getItem("todos"));
-
-    if(todos && todos.length > 0){
-      setTodos(todos);
-    }
-  }, []);
-
   useEffect(() => {
     localStorage.setItem("todos", JSON.stringify(todos))
   }, [todos])
@@ -50,9 +60,17 @@ function App() {
             </h1>
             <div className="mb-4">
               {/* Todo form goes here */}
+              <TodoForm />
             </div>
             <div className="flex flex-wrap gap-y-3">
               {/*Loop and Add TodoItem here */}
+              {
+                todos.map((todo) => (
+                  <div key={todo.id} className="w-full">
+                    <TodoItems todo={todo}/>
+                  </div>
+                ))
+              }
             </div>
           </div>
         </div>
